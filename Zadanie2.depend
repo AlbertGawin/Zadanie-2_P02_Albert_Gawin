@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1609585125 source:d:\studia\algorytmy\zadanie 2\zadanie2\main.cpp
+	<iostream>
+	<chrono>
+	<ctime>
+	<fstream>
+
