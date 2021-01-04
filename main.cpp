@@ -1,135 +1,156 @@
 #include <iostream>
-#include <chrono>
-#include <ctime>
 #include <fstream>
+#include <ctime>
+#include <conio.h>
+#include <chrono>
 
-using namespace std;
-
-struct Timer
+struct Zegar
 {
     std::chrono::time_point<std::chrono::high_resolution_clock> _start, _end;
-    std::chrono::duration<float> duration;
+    std::chrono::duration<float> czas;
 
-    Timer()
+    Zegar()
     {
         _start = std::chrono::high_resolution_clock::now();
+        czas = std::chrono::seconds(0);
     }
 
-    ~Timer()
+    ~Zegar()
     {
         _end = std::chrono::high_resolution_clock::now();
-        duration = _end - _start;
+        czas = _end - _start;
 
-        float ms = duration.count() * 1000.f;
-        cout << "Skrypt potrzebowal " << ms << "ms\n\n";
+        float ms = czas.count() * 1000.f;
+        std::cout << "Skrypt potrzebowal " << ms << "ms\n\n";
     }
 };
 
-int* getArrayFromFile(string path)
+class Tablica
 {
-    fstream file(path, ios::in);
-    bool isEmpty = file.peek() == std::ifstream::traits_type::eof();
+public:
+    int* dane;
+    int dlugosc;
 
-    int* _array;
-
-    // Sprawdz czy plik poprawnie otwarty oraz czy nie jest pusty
-    if(file.good() && !isEmpty)
+    Tablica(int N)
     {
-        int i = 0;
-        while (file >> _array[i])
+        dlugosc = N;
+        dane = new int[dlugosc];
+    }
+
+    ~Tablica()
+    {
+        delete[] dane;
+    }
+
+    void sortujBabelkowo()
+    {
+        // Liczy czas wykonania funkcji
+        Zegar zegar;
+
+        for (int i = 0; i < dlugosc - 1; i++)
         {
-            i++;
+            for (int j = i + 1; j < dlugosc; j++)
+            {
+                if (dane[i] > dane[j])
+                    std::swap(dane[i], dane[j]);
+            }
+        }
+    }
+
+    void sortujPrzezZliczanie()
+    {
+        // Liczy czas wykonania funkcji
+        Zegar zegar;
+
+        int* licznik = new int[dlugosc + 1];
+
+        // Wypelnienie tablicy liczników zerami
+        for (int i = 0; i < dlugosc + 1; i++)
+            licznik[i] = 0;
+
+        // Zwiekszanie liczników
+        for (int i = 0; i < dlugosc; i++)
+            licznik[dane[i]]++;
+
+        // Sortowanie tablicy
+        int k = 0;
+        for (int i = 0; i < dlugosc + 1; i++)
+        {
+            if (licznik[i] > 0)
+            {
+                for (int j = 0; j < licznik[i]; j++)
+                {
+                    dane[k] = i;
+                    k++;
+                }
+            }
+        }
+
+        delete[] licznik;
+    }
+};
+
+void OdczytajDaneZPlikuDoTablicy(Tablica &tab, std::string sciezka)
+{
+    std::fstream plik(sciezka, std::ios::in);
+    bool isEmpty = plik.peek() == std::ifstream::traits_type::eof();
+
+    if (plik.good() && !isEmpty)
+    {
+        for (int i = 0; i < tab.dlugosc; i++)
+        {
+            plik >> tab.dane[i];
         }
     }
     else
     {
-        file.close();
-        return 0;
+        std::cout << "Plik nie istnieje lub podano zla sciezke" << std::endl;
+        plik.close();
     }
-    file.close();
-
-    return _array;
+    plik.close();
 }
 
-void SortowanieBabelkowe(int* tab, int N)
+void ZapiszTabliceDoPliku(Tablica &tab, std::string sciezka)
 {
-    // Liczy czas wykonania funkcji
-    Timer timer;
+    std::fstream plik;
+    plik.open(sciezka, std::ios::out);
 
-    // Utworzenie kopii listy
-    int tabCopy[N];
-    for (int i = 0; i < N; i++)
+    if (plik.good())
     {
-        tabCopy[i] = tab[i];
-    }
-
-    for (int i = 0; i < N-1; i++)
-    {
-        for (int j = i+1; j < N; j++)
+        for (int i = 0; i < tab.dlugosc; i++)
         {
-            if (tabCopy[i] > tabCopy[j])
-                swap(tabCopy[i], tabCopy[j]);
+            plik << tab.dane[i] << " ";
         }
     }
-}
-
-void SortowaniePrzezZliczanie(int* tab, int N, int _MIN, int _MAX)
-{
-    // Liczy czas wykonania funkcji
-    Timer timer;
-
-    // Utworzenie kopii listy
-    int tabCopy[N];
-    for (int i = 0; i < N; i++)
+    else
     {
-        tabCopy[i] = tab[i];
+        std::cout << "Plik nie istnieje lub podano zla sciezke" << std::endl;
+        plik.close();
     }
 
-    int licznik[_MAX - _MIN + 1];
-
-    // Wypelnienie tablicy liczników zerami
-    for (int i = _MIN; i <= _MAX; i++)
-        licznik[i] = 0;
-
-    // Zwiekszanie liczników
-    for (int i = 0; i < N; i++)
-        licznik[tabCopy[i]]++;
-
-    // Sortowanie tablicy
-    int k = 0;
-    for (int i = 0; i < _MAX - _MIN + 1; i++)
-    {
-        if (licznik[i] > 0)
-        {
-            for (int j = 0; j < licznik[i]; j++)
-            {
-                tabCopy[k] = i;
-                k++;
-            }
-        }
-    }
+    plik.close();
 }
 
 int main()
 {
-    int N = 200000, _MIN = 0, _MAX = 100;
-    int tab[N];
+    int N = 0;
+    std::cout << "Podaj N: ";   std::cin >> N;
+    Tablica tab(N);
 
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     for (int i = 0; i < N; i++)
     {
-        tab[i] = _MIN + rand() % (_MAX - _MIN);
+        tab.dane[i] = rand() % (N + 1);
     }
+    ZapiszTabliceDoPliku(tab, "tablice/1.txt");
 
-    SortowanieBabelkowe(tab, N);
-    SortowaniePrzezZliczanie(tab, N, _MIN, _MAX);
+    tab.sortujBabelkowo();
 
-    int tab* = getArrayFromFile("tablice/1.txt");
-    for (int i=0; i<sizeof(tab)/sizeof(typeof(int)); i++)
-    {
-}
+    OdczytajDaneZPlikuDoTablicy(tab, "tablice/1.txt");
 
-    std::cin.get();
+    tab.sortujPrzezZliczanie();
 
-    return 0;
+    ZapiszTabliceDoPliku(tab, "wyniki/wynik1.txt");
+
+    system("pause");
 }
