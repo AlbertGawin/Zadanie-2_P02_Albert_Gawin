@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <ctime>
-#include <conio.h>
 #include <chrono>
 
 struct Zegar
@@ -21,7 +20,7 @@ struct Zegar
         czas = _end - _start;
 
         float ms = czas.count() * 1000.f;
-        std::cout << "Skrypt potrzebowal " << ms << "ms\n\n";
+        std::cout << "czas: " << ms << " milisekund\n\n";
     }
 };
 
@@ -29,9 +28,9 @@ class Tablica
 {
 public:
     int* dane;
-    int dlugosc;
+    long long dlugosc;
 
-    Tablica(int N)
+    Tablica(long long N)
     {
         dlugosc = N;
         dane = new int[dlugosc];
@@ -47,6 +46,8 @@ public:
         // Liczy czas wykonania funkcji
         Zegar zegar;
 
+        std::cout << "Sortuje babelkowo...\n";
+
         for (int i = 0; i < dlugosc - 1; i++)
         {
             for (int j = i + 1; j < dlugosc; j++)
@@ -61,6 +62,8 @@ public:
     {
         // Liczy czas wykonania funkcji
         Zegar zegar;
+
+        std::cout << "Sortuje przez zliczanie...\n";
 
         int* licznik = new int[dlugosc + 1];
 
@@ -133,24 +136,26 @@ void ZapiszTabliceDoPliku(Tablica &tab, std::string sciezka)
 
 int main()
 {
-    int N = 0;
+    long long N = 0;
     std::cout << "Podaj N: ";   std::cin >> N;
-    Tablica tab(N);
+    std::cout << std::endl;
+
+    Tablica tablica(N);
 
     srand((unsigned int)time(NULL));
     for (int i = 0; i < N; i++)
     {
-        tab.dane[i] = rand() % (N + 1);
+        tablica.dane[i] = rand() % (N + 1);
     }
-    ZapiszTabliceDoPliku(tab, "tablice/1.txt");
+    ZapiszTabliceDoPliku(tablica, "tablice/tablica1.txt");
 
-    tab.sortujBabelkowo();
+    tablica.sortujBabelkowo();
 
-    OdczytajDaneZPlikuDoTablicy(tab, "tablice/1.txt");
+    OdczytajDaneZPlikuDoTablicy(tablica, "tablice/tablica1.txt");
 
-    tab.sortujPrzezZliczanie();
+    tablica.sortujPrzezZliczanie();
 
-    ZapiszTabliceDoPliku(tab, "wyniki/wynik1.txt");
+    ZapiszTabliceDoPliku(tablica, "tablice/wynik1.txt");
 
     system("pause");
 }
