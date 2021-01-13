@@ -1,8 +1,8 @@
 # depslib dependency file v1.0
-1610219195 source:d:\studia\algorytmy\zadanie 2\zadanie2\main.cpp
+1610483180 source:d:\studia\algorytmy\zadanie 2\zadanie2\main.cpp
 	<iostream>
 	<fstream>
 	<ctime>
-	<conio.h>
 	<chrono>
+	<algorithm>
 

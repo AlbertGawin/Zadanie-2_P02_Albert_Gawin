@@ -2,6 +2,7 @@
 #include <fstream>
 #include <ctime>
 #include <chrono>
+#include <algorithm>
 
 struct Zegar
 {
@@ -46,10 +47,10 @@ public:
 
     void sortujBabelkowo()
     {
-        // Liczy czas wykonania funkcji
-        Zegar zegar;
-
         std::cout << "Sortuje babelkowo...\n";
+
+        // Liczy czas wykonania sortowania
+        Zegar zegar;
 
         // Sortowanie babelkowe
         for (int i = 0; i < dlugosc - 1; i++)
@@ -64,30 +65,34 @@ public:
 
     void sortujPrzezZliczanie()
     {
-        // Liczy czas wykonania funkcji
-        Zegar zegar;
-
         std::cout << "Sortuje przez zliczanie...\n";
 
-        int* licznik = new int[dlugosc + 1];
+        int _MIN = *std::min_element(dane, dane+dlugosc);
+        int _MAX = *std::max_element(dane, dane+dlugosc);
+
+        int ileLiczb = _MAX - _MIN + 1;
+        int* licznik = new int[ileLiczb];
+
+        // Liczy czas wykonania sortowania
+        Zegar zegar;
 
         // Wypelnienie tablicy liczników zerami
-        for (int i = 0; i < dlugosc + 1; i++)
+        for (int i = 0; i < ileLiczb; i++)
             licznik[i] = 0;
 
         // Zwiekszanie liczników
         for (int i = 0; i < dlugosc; i++)
-            licznik[dane[i]]++;
+            licznik[dane[i] - _MIN]++;
 
         // Sortowanie tablicy
         int k = 0;
-        for (int i = 0; i < dlugosc + 1; i++)
+        for (int i = 0; i < ileLiczb; i++)
         {
             if (licznik[i] > 0)
             {
                 for (int j = 0; j < licznik[i]; j++)
                 {
-                    dane[k] = i;
+                    dane[k] = i + _MIN;
                     k++;
                 }
             }
